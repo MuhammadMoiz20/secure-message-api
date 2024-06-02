@@ -37,3 +37,28 @@ def decrypt_private_key(blob: bytes, passphrase: str) -> bytes:
     key = _kdf(passphrase, salt)
     f = Fernet(base64.urlsafe_b64encode(key))
     return f.decrypt(ct)
+
+
+def rsa_encrypt(pub_pem: bytes, data: bytes) -> bytes:
+    pub = serialization.load_pem_public_key(pub_pem)
+    return pub.encrypt(data, padding.OAEP(mgf=padding.MGF1(hashes.SHA256()), algorithm=hashes.SHA256(), label=None))
+
+
+def rsa_decrypt(priv_pem: bytes, data: bytes) -> bytes:
+    priv = serialization.load_pem_private_key(priv_pem, password=None)
+    return priv.decrypt(data, padding.OAEP(mgf=padding.MGF1(hashes.SHA256()), algorithm=hashes.SHA256(), label=None))
+
+
+def encrypt_message(body: str, pub_pem: bytes):
+    """encrypt body with a fresh AES key, encrypt the key with recipient pubkey"""
+    key = Fernet.generate_key()
+    f = Fernet(key)
+    ct = f.encrypt(body.encode())
+    wrapped = rsa_encrypt(pub_pem, key)
+    return ct, wrapped
+
+
+def decrypt_message(ct: bytes, wrapped: bytes, priv_pem: bytes) -> str:
+    key = rsa_decrypt(priv_pem, wrapped)
+    f = Fernet(key)
+    return f.decrypt(ct).decode()
