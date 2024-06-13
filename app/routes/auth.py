@@ -4,10 +4,11 @@ from ..db import get_db
 from ..models import User
 from ..schemas import RegisterIn, LoginIn, TokenOut
 from ..auth import hash_password, verify_password, make_token
+from ..ratelimit import rate_limit
 from ..crypto import generate_rsa_keypair, encrypt_private_key
 
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(prefix="/auth", tags=["auth"], dependencies=[Depends(rate_limit(20))])
 
 
 @router.post("/register", response_model=TokenOut)
