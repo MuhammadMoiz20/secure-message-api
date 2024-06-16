@@ -13,6 +13,10 @@ router = APIRouter(prefix="/auth", tags=["auth"], dependencies=[Depends(rate_lim
 
 @router.post("/register", response_model=TokenOut)
 def register(body: RegisterIn, db: Session = Depends(get_db)):
+    if len(body.password) < 8:
+        raise HTTPException(400, "password too short")
+    if len(body.passphrase) < 6:
+        raise HTTPException(400, "passphrase too short")
     if db.query(User).filter(User.email == body.email).first():
         raise HTTPException(400, "email taken")
     priv, pub = generate_rsa_keypair()

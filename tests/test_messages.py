@@ -1,4 +1,4 @@
-def reg(client, email, pw="pw12345", ph="ph"):
+def reg(client, email, pw="pw123456", ph="ph"):
     r = client.post("/auth/register", json={"email": email, "password": pw, "passphrase": ph})
     return r.json()["access_token"]
 
