@@ -24,8 +24,8 @@ def send(body: MessageIn, db: Session = Depends(get_db), user: User = Depends(cu
 
 
 @router.get("/inbox", response_model=list[MessageOut])
-def inbox(db: Session = Depends(get_db), user: User = Depends(current_user)):
-    return db.query(Message).filter(Message.recipient_id == user.id).order_by(Message.created_at.desc()).all()
+def inbox(limit: int = 50, offset: int = 0, db: Session = Depends(get_db), user: User = Depends(current_user)):
+    return db.query(Message).filter(Message.recipient_id == user.id).order_by(Message.created_at.desc()).limit(limit).offset(offset).all()
 
 
 @router.post("/{mid}/decrypt", response_model=DecryptOut)
