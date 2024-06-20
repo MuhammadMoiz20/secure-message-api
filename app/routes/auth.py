@@ -5,6 +5,7 @@ from ..models import User
 from ..schemas import RegisterIn, LoginIn, TokenOut
 from ..auth import hash_password, verify_password, make_token
 from ..ratelimit import rate_limit
+from ..deps import current_user
 from ..crypto import generate_rsa_keypair, encrypt_private_key
 
 
@@ -38,3 +39,8 @@ def login(body: LoginIn, db: Session = Depends(get_db)):
     if not u or not verify_password(body.password, u.password_hash):
         raise HTTPException(401, "bad credentials")
     return TokenOut(access_token=make_token(u.id))
+
+
+@router.get("/me")
+def me(user=Depends(current_user)):
+    return {"id": user.id, "email": user.email, "public_key": user.public_key}
