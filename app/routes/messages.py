@@ -12,6 +12,8 @@ router = APIRouter(prefix="/messages", tags=["messages"])
 
 @router.post("", response_model=MessageOut)
 def send(body: MessageIn, db: Session = Depends(get_db), user: User = Depends(current_user)):
+    if len(body.body) > 4096:
+        raise HTTPException(400, "body too long")
     recipient = db.query(User).filter(User.email == body.recipient_email).first()
     if not recipient:
         raise HTTPException(404, "recipient not found")
