@@ -6,8 +6,9 @@ import os
 import base64
 
 
-def generate_rsa_keypair():
-    key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+def generate_rsa_keypair(bits: int = 2048):
+    # 2048 is fine for now, 3072 would be safer
+    key = rsa.generate_private_key(public_exponent=65537, key_size=bits)
     priv_pem = key.private_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PrivateFormat.PKCS8,
