@@ -30,6 +30,14 @@ def inbox(limit: int = 50, offset: int = 0, db: Session = Depends(get_db), user:
     return db.query(Message).filter(Message.recipient_id == user.id).order_by(Message.created_at.desc()).limit(limit).offset(offset).all()
 
 
+@router.get("/{mid}", response_model=MessageOut)
+def get_one(mid: int, db: Session = Depends(get_db), user: User = Depends(current_user)):
+    m = db.get(Message, mid)
+    if not m or (m.recipient_id != user.id and m.sender_id != user.id):
+        raise HTTPException(404, "not found")
+    return m
+
+
 @router.post("/{mid}/decrypt", response_model=DecryptOut)
 def decrypt(mid: int, body: DecryptIn, db: Session = Depends(get_db), user: User = Depends(current_user)):
     m = db.get(Message, mid)
