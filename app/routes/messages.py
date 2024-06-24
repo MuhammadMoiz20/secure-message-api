@@ -49,3 +49,13 @@ def decrypt(mid: int, body: DecryptIn, db: Session = Depends(get_db), user: User
         raise HTTPException(401, "bad passphrase")
     plaintext = decrypt_message(m.ciphertext, m.encrypted_key, priv)
     return DecryptOut(id=m.id, body=plaintext)
+
+
+@router.delete("/{mid}")
+def delete_message(mid: int, db: Session = Depends(get_db), user: User = Depends(current_user)):
+    m = db.get(Message, mid)
+    if not m or m.recipient_id != user.id:
+        raise HTTPException(404, "not found")
+    db.delete(m)
+    db.commit()
+    return {"ok": True}
