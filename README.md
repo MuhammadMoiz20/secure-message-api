@@ -34,6 +34,12 @@ make test
 docker compose up --build
 ```
 
+## known limitations
+- bcrypt cost is library default; consider tuning
+- no refresh tokens, no token revocation list
+- single sqlite db; not designed for horizontal scaling as-is
+- no rate limit on `/messages/*/decrypt` - add if abuse becomes an issue
+
 ## security notes
 - passphrase is never stored - it's only used in-memory to unwrap the private key on decrypt
 - a stolen db dump leaks ciphertexts + encrypted private keys, but not plaintext or private keys
